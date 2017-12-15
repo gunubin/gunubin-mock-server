@@ -1,6 +1,9 @@
 .DS_Store
 npm-debug.log
 .eslintcache
+coverage.lcov
 
+.nyc_output/
+coverage/
 lib/
 node_modules/

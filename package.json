@@ -37,6 +37,7 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-power-assert": "^1.0.0",
     "babel-preset-stage-0": "^6.24.1",
+    "codecov": "^3.0.0",
     "eslint": "^4.13.1",
     "eslint-plugin-babel": "^4.1.2",
     "eslint-plugin-flowtype": "^2.40.1",
@@ -44,6 +45,7 @@
     "flow-copy-source": "^1.2.1",
     "nodemon": "^1.12.5",
     "npm-run-all": "^4.1.2",
+    "nyc": "^11.3.0",
     "power-assert": "^1.4.4",
     "supertest": "^3.0.0"
   },
@@ -63,9 +65,11 @@
     "build:js": "NODE_ENV=production babel src --out-dir lib",
     "lint:flow": "flow src",
     "lint:js": "eslint src test",
+    "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "start": "nodemon src --exec babel-node",
     "test": "npm-run-all lint:* test:*",
     "test:ava": "NODE_ENV=test ava",
+    "test:coverage": "NODE_ENV=test nyc ava",
     "watch": "babel src --out-dir lib --watch --source-maps inline",
     "watch:ava": "NODE_ENV=test ava --watch"
   }
