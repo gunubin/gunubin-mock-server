@@ -50,12 +50,17 @@
   "files": [
     "lib"
   ],
+  "homepage": "https://github.com/gunubin/gunubin-mock-server",
   "license": "MIT",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:gunubin/gunubin-mock-server.git"
+  },
   "scripts": {
     "build": "npm-run-all build:*",
-    "build:js": "NODE_ENV=production babel src --out-dir lib",
     "build:flow": "flow-copy-source src lib",
+    "build:js": "NODE_ENV=production babel src --out-dir lib",
     "lint:flow": "flow src",
     "lint:js": "eslint src test",
     "start": "nodemon src --exec babel-node",
