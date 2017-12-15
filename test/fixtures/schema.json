@@ -1,0 +1,151 @@
+{
+  "$schema": "http://interagent.github.io/interagent-hyper-schema",
+  "type": [
+    "object"
+  ],
+  "definitions": {
+    "task": {
+      "$schema": "http://json-schema.org/draft-04/hyper-schema",
+      "title": "task",
+      "description": "hoge",
+      "stability": "prototype",
+      "strictProperties": true,
+      "type": [
+        "object"
+      ],
+      "definitions": {
+        "body": {
+          "description": "本文",
+          "example": "foobar",
+          "readOnly": true,
+          "type": [
+            "string"
+          ]
+        }
+      },
+      "links": [
+        {
+          "description": "foobar",
+          "href": "/task",
+          "method": "GET",
+          "rel": "self",
+          "title": "詳細",
+          "targetSchema": {
+            "properties": {
+              "content": {
+                "description": "task",
+                "example": "taskですよ",
+                "type": [
+                  "string"
+                ]
+              }
+            },
+            "required": [
+              "content"
+            ],
+            "type": [
+              "object"
+            ]
+          }
+        }
+      ]
+    },
+    "todo": {
+      "$schema": "http://json-schema.org/draft-04/hyper-schema",
+      "title": "お知らせ",
+      "description": "ユーザへのお知らせを表します。ユーザ個別ではなく全員共通の告知事項のみを扱います。",
+      "stability": "prototype",
+      "strictProperties": true,
+      "type": [
+        "object"
+      ],
+      "definitions": {
+        "content": {
+          "description": "本文",
+          "example": "Todo説明です",
+          "readOnly": true,
+          "type": [
+            "string"
+          ]
+        },
+        "id": {
+          "description": "TodoID",
+          "example": 1,
+          "readOnly": true,
+          "type": [
+            "integer"
+          ]
+        },
+        "identity": {
+          "$ref": "#/definitions/todo/definitions/id"
+        },
+        "title": {
+          "description": "タイトル",
+          "example": "Todoです",
+          "readOnly": true,
+          "type": [
+            "string"
+          ]
+        },
+        "createdAt": {
+          "description": "作成日時",
+          "format": "date-time",
+          "example": "2017-12-24T12:13:14Z",
+          "readOnly": true,
+          "type": [
+            "string"
+          ]
+        }
+      },
+      "links": [
+        {
+          "description": "Todo一覧を取得します。",
+          "href": "/todo",
+          "method": "GET",
+          "rel": "instances",
+          "targetSchema": {
+          },
+          "title": "一覧"
+        },
+        {
+          "description": "Todo詳細を取得します。",
+          "href": "/todo/{(%23%2Fdefinitions%2Ftodo%2Fdefinitions%2Fidentity)}",
+          "method": "GET",
+          "rel": "self",
+          "title": "詳細"
+        }
+      ],
+      "properties": {
+        "createdAt": {
+          "$ref": "#/definitions/todo/definitions/createdAt"
+        },
+        "id": {
+          "$ref": "#/definitions/todo/definitions/id"
+        },
+        "title": {
+          "$ref": "#/definitions/todo/definitions/title"
+        },
+        "content": {
+          "$ref": "#/definitions/todo/definitions/content"
+        }
+      },
+      "required": [
+        "createdAt",
+        "id",
+        "title",
+        "content"
+      ]
+    }
+  },
+  "properties": {
+    "todo": {
+      "$ref": "#/definitions/todo"
+    },
+    "task": {
+      "$ref": "#/definitions/task"
+    }
+  },
+  "description": "Mock API",
+  "id": "gunubin",
+  "title": "Mock API JSON Schema"
+}
