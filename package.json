@@ -63,13 +63,12 @@
     "build": "npm-run-all build:*",
     "build:flow": "flow-copy-source src lib",
     "build:js": "NODE_ENV=production babel src --out-dir lib",
+    "coverage": "nyc report --reporter=lcov --reporter=text && codecov",
     "lint:flow": "flow src",
     "lint:js": "eslint src test",
-    "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "start": "nodemon src --exec babel-node",
     "test": "npm-run-all lint:* test:*",
     "test:ava": "NODE_ENV=test ava",
-    "test:coverage": "NODE_ENV=test nyc ava",
     "watch": "babel src --out-dir lib --watch --source-maps inline",
     "watch:ava": "NODE_ENV=test ava --watch"
   }

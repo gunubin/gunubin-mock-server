@@ -4,7 +4,9 @@
 [![codecov](https://codecov.io/gh/gunubin/gunubin-mock-server/branch/master/graph/badge.svg)](https://codecov.io/gh/gunubin/gunubin-mock-server)
 
 ## Installation
+```
 npm install --save gunubin-mock-server
+```
 
 ## Usage
 
