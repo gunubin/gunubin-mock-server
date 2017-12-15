@@ -68,7 +68,7 @@
     "lint:js": "eslint src test",
     "start": "nodemon src --exec babel-node",
     "test": "npm-run-all lint:* test:*",
-    "test:ava": "NODE_ENV=test ava",
+    "test:ava": "NODE_ENV=test nyc ava",
     "watch": "babel src --out-dir lib --watch --source-maps inline",
     "watch:ava": "NODE_ENV=test ava --watch"
   }
