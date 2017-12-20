@@ -39,6 +39,30 @@ test('#extend()', async t => {
   t.is(res.body[0].id, 10);
 });
 
+test('#extend("/foo/:param1")', async t => {
+  t.context.server.extend('/task/:param1', req => {
+    return {
+      content: `foobar${req.params.param1}`
+    };
+  });
+  const res = await request(t.context.server.app).get('/task/1');
+  t.is(res.body.content, 'foobar1');
+  const res2 = await request(t.context.server.app).get('/task/5');
+  t.is(res2.body.content, 'foobar5');
+});
+
+test('#extend("/foo?bar=5&hoge=abo")', async t => {
+  t.context.server.extend('/task', req => {
+    return {
+      content: `foobar${req.param('foo')}${req.param('bar')}`
+    };
+  });
+  const res = await request(t.context.server.app).get('/task?foo=1&bar=2');
+  t.is(res.body.content, 'foobar12');
+  const res2 = await request(t.context.server.app).get('/task?foo=5&bar=10');
+  t.is(res2.body.content, 'foobar510');
+});
+
 test('#extendResource()', async t => {
   t.context.server.extendResource('todo', {
     id: 2

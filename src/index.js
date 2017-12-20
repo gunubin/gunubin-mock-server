@@ -13,12 +13,17 @@ type Params = {
   port: number
 }
 
+type Sample = any
+
+type ResponseType = (
+  request: Object,
+  sample: Object
+) => Object | Object
+
 type Stub = {
   override: boolean,
-  resource: Object,
+  response: ResponseType,
 }
-
-type Sample = any
 
 const STATUS_SUCCESS = 200;
 const STATUS_ERROR = 400;
@@ -67,7 +72,7 @@ export default class GunubinMockServer {
               if (err) {
                 this.log(err);
               }
-              this._generateEndPoint(schema);
+              this._generateEndPoints(schema);
               resolve();
             });
           });
@@ -79,12 +84,31 @@ export default class GunubinMockServer {
   }
 
   /**
+   * JSONSchemaのlink.hrefプロパティからルーティング用のpathを返します。
+   *
+   * @param href - JSONSchemaのlink.href
+   * @returns {string}
+   * @private
+   *
+   * FIXME: schemaからパラメータ名を取得できないので一旦"param{index}"を返す
+   */
+  _getPath(href: string) {
+    let ret = href;
+    const regexp = /\{\(.*\)\}/g;
+    const len = (href.match(regexp) || []).length;
+    _.each(_.range(1, len+1), index => {
+      ret = ret.replace(regexp, `:param${index}`);
+    });
+    return ret;
+  }
+
+  /**
    * JSON Hyper Schemaからエンドポイントを設定します。
    *
    * @param schema
    * @private
    */
-  _generateEndPoint(schema: Object) {
+  _generateEndPoints(schema: Object) {
     Object.keys(schema.properties).sort().forEach(property => {
       const {
         $schema, // eslint-disable-line no-unused-vars
@@ -95,9 +119,8 @@ export default class GunubinMockServer {
       this.schemata[property] = resourceSchema;
       links && links.forEach(link => {
         const method = link.method.toLowerCase();
-        // FIXME: replaceをちゃんとやる
-        const href = link.href.replace(/\{\(.*\)\}/g, ':id');
-        this.app[method](href, (req, res) => {
+        const path = this._getPath(link.href);
+        this.app[method](path, (req, res) => {
           let targetSchema = link.targetSchema || resourceSchema;
           // instancesの場合はそれ自身のresource
           if (link.rel === 'instances') {
@@ -105,14 +128,18 @@ export default class GunubinMockServer {
             targetSchema.type = ['array'];
             targetSchema.items = resourceSchema;
           }
-          this.jsf.resolve(targetSchema).then((sample) => {
-            sample = this._doExtend(property, link.href, sample);
+          this.jsf.resolve(targetSchema).then(fake => {
+            let sample = _.cloneDeep(fake);
+            // リソース上書き
+            sample = this._extendResource(property, sample);
+            // レスポンス上書き
+            sample = this._extendResponse(path, sample, req);
             const valid = this._validate(targetSchema, sample);
             this.log(chalk.yellow(`${property} sample validation:`), valid);
             if (valid) {
               res.status(STATUS_SUCCESS).json(sample);
             } else {
-              this.log('sample: ', sample);
+              this.log(chalk.red('Invalid sample: '), sample);
               this.fail(res, STATUS_ERROR, this._ajv.errors);
             }
           });
@@ -139,35 +166,24 @@ export default class GunubinMockServer {
   /**
    * レスポンスを上書きします。
    *
-   * @param property - Schemaのproperty
-   * @param href - Schemaのhref
-   * @param sample - fakerで生成したObject
-   * @private
-   */
-  _doExtend(property: string, href: string, sample: Sample): Sample {
-    // リソース上書き
-    sample = this._doExtendResource(property, sample);
-    // レスポンス上書き
-    sample = this._doExtendResponse(href, sample);
-    return sample;
-  }
-
-  /**
-   * レスポンスを上書きします。
-   *
-   * @param href
+   * @param path
    * @param sample
+   * @param req
    * @returns {Object|Array}
    * @private
    */
-  _doExtendResponse(href: string, sample: Sample) {
-    const mock = this._routing[href];
+  _extendResponse(path: string, sample: Sample, req: any) {
+    const mock = this._routing[path];
     if (mock) {
-      if (mock.override) {
-        sample = mock.resource;
-      }
-      else {
-        sample = _.merge(sample, mock.resource);
+      if (_.isFunction(mock.response)) {
+        sample = mock.response(req, sample);
+      } else {
+        if (mock.override) {
+          sample = mock.response;
+        }
+        else {
+          sample = _.merge(sample, mock.response);
+        }
       }
     }
     return sample;
@@ -181,18 +197,18 @@ export default class GunubinMockServer {
    * @returns {Object|Array}
    * @private
    */
-  _doExtendResource(property: string, sample: Sample) {
+  _extendResource(property: string, sample: Sample) {
     if (_.isArray(sample)) {
       sample = sample.map(s => {
-        return this._doExtendResource(property, s);
+        return this._extendResource(property, s);
       });
     }
     const mock = this._resources[property];
     if (mock) {
       if (mock.override) {
-        sample = _.isArray(sample) ? [mock.resource] : mock.resource;
+        sample = _.isArray(sample) ? [mock.response] : mock.response;
       } else {
-        sample = _.merge(sample, mock.resource);
+        sample = _.merge(sample, mock.response);
       }
     }
     return sample;
@@ -235,7 +251,7 @@ export default class GunubinMockServer {
    */
   extend(href: string, mock: Object, override: boolean = false) {
     this._routing[href] = {
-      resource: mock,
+      response: mock,
       override: override,
     };
   }
@@ -259,7 +275,7 @@ export default class GunubinMockServer {
    */
   extendResource(name: string, mock: Object, override: boolean = false) {
     this._resources[name] = {
-      resource: mock,
+      response: mock,
       override: override,
     };
   }

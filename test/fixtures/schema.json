@@ -47,13 +47,20 @@
               "object"
             ]
           }
+        },
+        {
+          "description": "一覧",
+          "href": "/task/{(%23%2Fdefinitions%2Ftask%2Fdefinitions%2Fidentity)}",
+          "method": "GET",
+          "rel": "self",
+          "title": "詳細"
         }
       ]
     },
     "todo": {
       "$schema": "http://json-schema.org/draft-04/hyper-schema",
-      "title": "お知らせ",
-      "description": "ユーザへのお知らせを表します。ユーザ個別ではなく全員共通の告知事項のみを扱います。",
+      "title": "Todo",
+      "description": "foo",
       "stability": "prototype",
       "strictProperties": true,
       "type": [
@@ -103,8 +110,6 @@
           "href": "/todo",
           "method": "GET",
           "rel": "instances",
-          "targetSchema": {
-          },
           "title": "一覧"
         },
         {
