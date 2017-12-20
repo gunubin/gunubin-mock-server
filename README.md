@@ -5,7 +5,7 @@
 
 ## Installation
 ```
-npm install --save gunubin-mock-server
+npm install --save-dev gunubin-mock-server
 ```
 
 ## Usage
