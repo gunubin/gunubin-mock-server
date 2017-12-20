@@ -82,4 +82,44 @@ test('targetSchema', async t => {
   t.true(!!res.body.content);
 });
 
+test('Custom Error response', async t => {
+  t.context.server.errorSchemata = [{
+      'title': 'エラー',
+      'description': 'エラーレスポンスを表します。',
+      'stability': 'prototype',
+      'strictProperties': true,
+      'type': [
+        'object'
+      ],
+      'properties': {
+        'type': {
+          'description': 'エラーの種別',
+          'enum': [
+            'foo_error',
+            'bar_error',
+          ]
+        },
+        'status': {
+          'status': {
+            'description': 'ステータスコード',
+            'example': 400,
+            'readOnly': true,
+            'type': [
+              'integer'
+            ]
+          }
+        }
+      },
+      'required': [
+        'type',
+        'status'
+      ]
+  }];
+  t.context.server.override('/task', {
+    type: 'foo_error',
+    status: 400,
+  });
+  const res = await request(t.context.server.app).get('/task');
+  t.is(res.body.status, 400);
+});
 

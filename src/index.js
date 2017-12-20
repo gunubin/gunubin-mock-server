@@ -13,13 +13,12 @@ type Params = {
   port: number
 }
 
-type Mock = {
+type Stub = {
   override: boolean,
   resource: Object,
 }
 
 type Sample = any
-
 
 const STATUS_SUCCESS = 200;
 const STATUS_ERROR = 400;
@@ -28,15 +27,17 @@ const STATUS_ERROR = 400;
  * GunubinMockServer
  */
 export default class GunubinMockServer {
-  ajv: Ajv;
+  _ajv: Ajv;
+  _callback: () => void;
+  _instance: any;
+  _resources: {[key: string]: Stub} = {};
+  _routing: {[key: string]: Stub} = {};
+  _params: Params;
   app: any;
-  callback: () => void;
-  instance: any;
+  errorSchemata: Object[] = [];
   jsf: jsf;
-  resources: {[key: string]: Mock} = {};
-  routing: {[key: string]: Mock} = {};
-  params: Params;
   parser: $RefParser;
+  schemata: Object = {};// パース済みのproperties以下を保持する
 
   /**
    * constructor
@@ -47,7 +48,7 @@ export default class GunubinMockServer {
     this.jsf = jsf;
     this.app = express();
     this.parser = new $RefParser();
-    this.ajv = new Ajv();
+    this._ajv = new Ajv();
   }
 
   /**
@@ -57,7 +58,7 @@ export default class GunubinMockServer {
    */
   async _readSchema() {
     return new Promise((resolve) => {
-      glob(path.join(this.params.glob), {nonull: true}, (err, files) => {
+      glob(path.join(this._params.glob), {nonull: true}, (err, files) => {
         const promises = [];
         files.map(file => {
           const promise = new Promise(resolve => {
@@ -91,8 +92,10 @@ export default class GunubinMockServer {
         ...resourceSchema
       } = schema.properties[property];
 
+      this.schemata[property] = resourceSchema;
       links && links.forEach(link => {
         const method = link.method.toLowerCase();
+        // FIXME: replaceをちゃんとやる
         const href = link.href.replace(/\{\(.*\)\}/g, ':id');
         this.app[method](href, (req, res) => {
           let targetSchema = link.targetSchema || resourceSchema;
@@ -104,17 +107,32 @@ export default class GunubinMockServer {
           }
           this.jsf.resolve(targetSchema).then((sample) => {
             sample = this._doExtend(property, link.href, sample);
-            const valid = this.ajv.validate(targetSchema, sample);
+            const valid = this._validate(targetSchema, sample);
             this.log(chalk.yellow(`${property} sample validation:`), valid);
             if (valid) {
               res.status(STATUS_SUCCESS).json(sample);
             } else {
               this.log('sample: ', sample);
-              this.fail(res, STATUS_ERROR, this.ajv.errors);
+              this.fail(res, STATUS_ERROR, this._ajv.errors);
             }
           });
         });
       });
+    });
+  }
+
+  /**
+   * バリデーションを行います。
+   *
+   * #setErrorSchemata()で設定したJSONSchemaとunionでバリデーションします。
+   *
+   * @param schema - JSON Schema
+   * @param sample - fakeデータ
+   * @private
+   */
+  _validate(schema: Object, sample: Object) {
+    return _.some([schema, ...this.errorSchemata], schema => {
+      return this._ajv.validate(schema, sample);
     });
   }
 
@@ -143,7 +161,7 @@ export default class GunubinMockServer {
    * @private
    */
   _doExtendResponse(href: string, sample: Sample) {
-    const mock = this.routing[href];
+    const mock = this._routing[href];
     if (mock) {
       if (mock.override) {
         sample = mock.resource;
@@ -169,7 +187,7 @@ export default class GunubinMockServer {
         return this._doExtendResource(property, s);
       });
     }
-    const mock = this.resources[property];
+    const mock = this._resources[property];
     if (mock) {
       if (mock.override) {
         sample = _.isArray(sample) ? [mock.resource] : mock.resource;
@@ -187,9 +205,9 @@ export default class GunubinMockServer {
    */
   async _configureApp() {
     await this._readSchema();
-    this.instance = this.app.listen(this.params.port, () => {
-      this.log(`Endpoint:`, chalk.yellow(`http://localhost:${this.params.port}`));
-      this.callback && this.callback();
+    this._instance = this.app.listen(this._params.port, () => {
+      this.log(`Endpoint:`, chalk.yellow(`http://localhost:${this._params.port}`));
+      this._callback && this._callback();
     });
   }
 
@@ -216,7 +234,7 @@ export default class GunubinMockServer {
    * @param override
    */
   extend(href: string, mock: Object, override: boolean = false) {
-    this.routing[href] = {
+    this._routing[href] = {
       resource: mock,
       override: override,
     };
@@ -240,7 +258,7 @@ export default class GunubinMockServer {
    * @param override
    */
   extendResource(name: string, mock: Object, override: boolean = false) {
-    this.resources[name] = {
+    this._resources[name] = {
       resource: mock,
       override: override,
     };
@@ -263,8 +281,8 @@ export default class GunubinMockServer {
    * @param callback - callback
    */
   start(params: Params, callback: () => void) {
-    this.params = params;
-    this.callback = callback;
+    this._params = params;
+    this._callback = callback;
     this._configureApp();
   }
 
@@ -274,9 +292,9 @@ export default class GunubinMockServer {
    * @param callback
    */
   close(callback: () => void) {
-    if (this.instance) {
+    if (this._instance) {
       this.log(chalk.yellow('Closing server'));
-      this.instance.close();
+      this._instance.close();
       callback && callback();
     }
   }
