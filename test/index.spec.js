@@ -10,7 +10,7 @@ let port = 3010;
 test.cb.beforeEach(t => {
   const mockServer = new GunubinMockServer();
   mockServer.start({
-    directory: path.join(dirname, 'test', 'fixtures'),
+    glob: path.join(dirname, 'test', 'fixtures', 'schema.json'),
     port: port++
   }, (err) => {
     t.end();

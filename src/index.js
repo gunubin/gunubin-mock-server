@@ -3,13 +3,13 @@ import express from 'express';
 import _ from 'lodash';
 import chalk from 'chalk';
 import $RefParser from 'json-schema-ref-parser';
-import defaultJsf from 'json-schema-faker';
+import jsf from 'json-schema-faker';
 import Ajv from 'ajv';
 import glob from 'glob';
 import path from 'path';
 
 type Params = {
-  directory: string,
+  glob: string,
   port: number
 }
 
@@ -32,7 +32,7 @@ export default class GunubinMockServer {
   app: any;
   callback: () => void;
   instance: any;
-  jsf: any;
+  jsf: jsf;
   resources: {[key: string]: Mock} = {};
   routing: {[key: string]: Mock} = {};
   params: Params;
@@ -43,7 +43,7 @@ export default class GunubinMockServer {
    *
    * @param jsf - json-schema-faker
    */
-  constructor(jsf: any = defaultJsf) {
+  constructor() {
     this.jsf = jsf;
     this.app = express();
     this.parser = new $RefParser();
@@ -57,7 +57,7 @@ export default class GunubinMockServer {
    */
   async _readSchema() {
     return new Promise((resolve) => {
-      glob(path.join(this.params.directory, '**/*.json'), {nonull: true}, (err, files) => {
+      glob(path.join(this.params.glob), {nonull: true}, (err, files) => {
         const promises = [];
         files.map(file => {
           const promise = new Promise(resolve => {
@@ -91,7 +91,7 @@ export default class GunubinMockServer {
         ...resourceSchema
       } = schema.properties[property];
 
-      links.forEach(link => {
+      links && links.forEach(link => {
         const method = link.method.toLowerCase();
         const href = link.href.replace(/\{\(.*\)\}/g, ':id');
         this.app[method](href, (req, res) => {
@@ -109,6 +109,7 @@ export default class GunubinMockServer {
             if (valid) {
               res.status(STATUS_SUCCESS).json(sample);
             } else {
+              this.log('sample: ', sample);
               this.fail(res, STATUS_ERROR, this.ajv.errors);
             }
           });
@@ -188,7 +189,7 @@ export default class GunubinMockServer {
     await this._readSchema();
     this.instance = this.app.listen(this.params.port, () => {
       this.log(`Endpoint:`, chalk.yellow(`http://localhost:${this.params.port}`));
-      this.callback();
+      this.callback && this.callback();
     });
   }
 
@@ -276,7 +277,7 @@ export default class GunubinMockServer {
     if (this.instance) {
       this.log(chalk.yellow('Closing server'));
       this.instance.close();
-      callback();
+      callback && callback();
     }
   }
 

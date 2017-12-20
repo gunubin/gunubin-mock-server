@@ -1,7 +1,7 @@
 {
   "name": "gunubin-mock-server",
   "description": "Mock API Client from JSON Hyper Schema",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "author": "gunubin",
   "ava": {
     "babel": "inherit",
@@ -31,7 +31,6 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.3",
-    "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-preset-es2015": "^6.24.1",
@@ -62,7 +61,7 @@
   "scripts": {
     "build": "npm-run-all build:*",
     "build:flow": "flow-copy-source src lib",
-    "build:js": "NODE_ENV=production babel src --out-dir lib",
+    "build:js": "NODE_ENV=production babel src --out-dir lib --source-maps inline",
     "coverage": "nyc report --reporter=lcov --reporter=text && codecov",
     "lint:flow": "flow src",
     "lint:js": "eslint src test",
