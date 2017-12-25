@@ -66,7 +66,7 @@
     "coverage": "nyc report --reporter=lcov --reporter=text && codecov",
     "lint:flow": "flow src",
     "lint:js": "eslint src test",
-    "prepublish": "git diff --exit-code && npm run --if-present build",
+    "prepublish": "npm run --if-present build",
     "semantic-release": "semantic-release",
     "start": "nodemon src --exec babel-node",
     "test": "npm-run-all lint:* test:*",
