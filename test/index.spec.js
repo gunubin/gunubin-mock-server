@@ -107,7 +107,7 @@ test('targetSchema', async t => {
 });
 
 test('Custom Error response', async t => {
-  t.context.server.errorSchemata = [{
+  t.context.server.globalValidResponseSchemata = [{
       'title': 'エラー',
       'description': 'エラーレスポンスを表します。',
       'stability': 'prototype',

@@ -39,7 +39,7 @@ export default class GunubinMockServer {
   _routing: {[key: string]: Stub} = {};
   _params: Params;
   app: any;
-  errorSchemata: Object[] = [];
+  globalValidResponseSchemata: Object[] = [];
   jsf: jsf;
   parser: $RefParser;
   schemata: Object = {};// パース済みのproperties以下を保持する
@@ -158,7 +158,7 @@ export default class GunubinMockServer {
    * @private
    */
   _validate(schema: Object, sample: Object) {
-    return _.some([schema, ...this.errorSchemata], schema => {
+    return _.some([schema, ...this.globalValidResponseSchemata], schema => {
       return this._ajv.validate(schema, sample);
     });
   }
