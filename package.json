@@ -1,6 +1,7 @@
 {
   "name": "gunubin-mock-server",
   "description": "Mock API Client from JSON Hyper Schema",
+  "version": "0.0.0-development",
   "author": "gunubin",
   "ava": {
     "babel": "inherit",
