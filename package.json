@@ -1,6 +1,7 @@
 {
   "name": "gunubin-mock-server",
   "description": "Mock API Client from JSON Hyper Schema",
+  "version": "0.0.0-development",
   "author": "gunubin",
   "ava": {
     "babel": "inherit",
@@ -65,7 +66,7 @@
     "coverage": "nyc report --reporter=lcov --reporter=text && codecov",
     "lint:flow": "flow src",
     "lint:js": "eslint src test",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "semantic-release": "semantic-release",
     "start": "nodemon src --exec babel-node",
     "test": "npm-run-all lint:* test:*",
     "test:ava": "NODE_ENV=test nyc ava",
