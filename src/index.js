@@ -96,7 +96,7 @@ export default class GunubinMockServer {
     let ret = href;
     const regexp = /\{\(.*\)\}/g;
     const len = (href.match(regexp) || []).length;
-    _.each(_.range(1, len+1), index => {
+    _.each(_.range(1, len + 1), index => {
       ret = ret.replace(regexp, `:param${index}`);
     });
     return ret;
@@ -176,17 +176,20 @@ export default class GunubinMockServer {
     const mock = this._routing[path];
     if (mock) {
       if (_.isFunction(mock.response)) {
-        sample = mock.response(req, sample);
+        sample = merge(mock.override, sample, mock.response(req, sample));
       } else {
-        if (mock.override) {
-          sample = mock.response;
-        }
-        else {
-          sample = _.merge(sample, mock.response);
-        }
+        sample = merge(mock.override, sample, mock.response);
       }
     }
     return sample;
+
+    function merge(override: boolean, sample: Sample, extendData: Object) {
+      if (override) {
+        return extendData;
+      } else {
+        return _.merge(sample, extendData);
+      }
+    }
   }
 
   /**

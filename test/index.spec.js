@@ -26,20 +26,7 @@ test.cb.afterEach(t => {
   t.context.server.close(() => t.end());
 });
 
-test('status 200', async t => {
-  const res = await request(t.context.server.app).get('/todo');
-  t.is(res.status, 200);
-});
-
 test('#extend()', async t => {
-  t.context.server.extend('/todo', [{
-    id: 10
-  }]);
-  const res = await request(t.context.server.app).get('/todo');
-  t.is(res.body[0].id, 10);
-});
-
-test('#extend("/foo/:param1")', async t => {
   t.context.server.extend('/task/:param1', req => {
     return {
       content: `foobar${req.params.param1}`
@@ -47,20 +34,17 @@ test('#extend("/foo/:param1")', async t => {
   });
   const res = await request(t.context.server.app).get('/task/1');
   t.is(res.body.content, 'foobar1');
+  t.not(res.body.statusType, undefined);
   const res2 = await request(t.context.server.app).get('/task/5');
   t.is(res2.body.content, 'foobar5');
 });
 
-test('#extend("/foo?bar=5&hoge=abo")', async t => {
-  t.context.server.extend('/task', req => {
-    return {
-      content: `foobar${req.param('foo')}${req.param('bar')}`
-    };
-  });
-  const res = await request(t.context.server.app).get('/task?foo=1&bar=2');
-  t.is(res.body.content, 'foobar12');
-  const res2 = await request(t.context.server.app).get('/task?foo=5&bar=10');
-  t.is(res2.body.content, 'foobar510');
+test('#extend() for rel is instances', async t => {
+  t.context.server.extend('/todo', [{
+    id: 10
+  }]);
+  const res = await request(t.context.server.app).get('/todo');
+  t.is(res.body[0].id, 10);
 });
 
 test('#extendResource()', async t => {
@@ -94,11 +78,11 @@ test('#overrideResource()', async t => {
 });
 
 test('JSON Schema Validation Error', async t => {
-  t.context.server.extend('/task', {
-    content: 1,
+  t.context.server.extend('/task/:param1', {
+    statusType: 'invalid type'
   });
-  const res = await request(t.context.server.app).get('/task');
-  t.is(res.body.error[0].dataPath, '.content');
+  const res = await request(t.context.server.app).get('/task/1');
+  t.is(res.body.error[0].dataPath, '.statusType');
 });
 
 test('targetSchema', async t => {
@@ -146,4 +130,5 @@ test('Custom Error response', async t => {
   const res = await request(t.context.server.app).get('/task');
   t.is(res.body.status, 400);
 });
+
 

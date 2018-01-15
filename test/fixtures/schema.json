@@ -14,12 +14,37 @@
         "object"
       ],
       "definitions": {
+        "id": {
+          "description": "taskID",
+          "example": 1,
+          "readOnly": true,
+          "type": [
+            "integer"
+          ]
+        },
+        "identity": {
+          "$ref": "#/definitions/task/definitions/id"
+        },
         "body": {
           "description": "本文",
           "example": "foobar",
           "readOnly": true,
           "type": [
             "string"
+          ]
+        },
+        "statusType": {
+          "description": "状態",
+          "example": "active",
+          "type": [
+            "string"
+          ],
+          "enum": [
+            "active",
+            "inactive",
+            "suspended",
+            "expired",
+            "closed"
           ]
         }
       },
@@ -55,6 +80,18 @@
           "rel": "self",
           "title": "詳細"
         }
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/task/definitions/id"
+        },
+        "statusType": {
+          "$ref": "#/definitions/task/definitions/statusType"
+        }
+      },
+      "required": [
+        "id",
+        "statusType"
       ]
     },
     "todo": {
