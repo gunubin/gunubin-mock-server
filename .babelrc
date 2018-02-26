@@ -1,14 +1,17 @@
 {
-  "plugins": ["transform-class-properties", "transform-flow-strip-types"],
-  "presets": [
-    "es2015",
-    "stage-0"
+  "plugins": [
+    "transform-class-properties",
+    "transform-flow-strip-types"
   ],
-  "env": {
-    "development": {
-      "presets": [
-        "power-assert"
-      ]
-    }
-  }
+  "presets": [
+    [
+      "env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ],
+    "stage-0"
+  ]
 }
