@@ -79,6 +79,26 @@
           "method": "GET",
           "rel": "self",
           "title": "詳細"
+        },
+        {
+          "description": "foobar",
+          "href": "/job",
+          "method": "GET",
+          "rel": "self",
+          "title": "詳細",
+          "targetSchema": {
+            "properties": {
+              "todo": {
+                "$ref": "#/definitions/todo"
+              }
+            },
+            "required": [
+              "todo"
+            ],
+            "type": [
+              "object"
+            ]
+          }
         }
       ],
       "properties": {

@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/gunubin/gunubin-mock-server.svg?branch=master)](https://travis-ci.org/gunubin/gunubin-mock-server)
 [![codecov](https://codecov.io/gh/gunubin/gunubin-mock-server/branch/master/graph/badge.svg)](https://codecov.io/gh/gunubin/gunubin-mock-server)
-[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://www.npmjs.com/package/gunubin-mock-server)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/gunubin/gunubin-mock-server)
 
 ## Installation
 ```
@@ -45,7 +45,7 @@ mockServer.overrideResource('todo', {
 });
 
 mockServer.globalValidResponseSchemata = [{
-  'title': 'ラー',
+  'title': 'エラー',
   'description': 'エラーレスポンスを表します。',
   'stability': 'prototype',
   'strictProperties': true,

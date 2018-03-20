@@ -90,6 +90,11 @@ test('targetSchema', async t => {
   t.true(!!res.body.content);
 });
 
+test('targetSchema $ref', async t => {
+  const res = await request(t.context.server.app).get('/job');
+  t.true(!!res.body.todo);
+});
+
 test('Custom Error response', async t => {
   t.context.server.globalValidResponseSchemata = [{
       'title': 'エラー',

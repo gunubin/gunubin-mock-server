@@ -32,17 +32,17 @@ const STATUS_ERROR = 400;
  * GunubinMockServer
  */
 export default class GunubinMockServer {
-  _ajv: Ajv;
-  _callback: () => void;
-  _instance: any;
-  _resources: {[key: string]: Stub} = {};
-  _routing: {[key: string]: Stub} = {};
-  _params: Params;
-  app: any;
-  globalValidResponseSchemata: Object[] = [];
-  jsf: jsf;
-  parser: $RefParser;
-  schemata: Object = {};// パース済みのproperties以下を保持する
+  _ajv: Ajv
+  _callback: () => void
+  _instance: any
+  _resources: {[key: string]: Stub} = {}
+  _routing: {[key: string]: Stub} = {}
+  _params: Params
+  app: any
+  globalValidResponseSchemata: Object[] = []
+  jsf: jsf
+  parser: $RefParser
+  schemata: Object = {}// パース済みのproperties以下を保持する
 
   /**
    * constructor
@@ -128,7 +128,11 @@ export default class GunubinMockServer {
             targetSchema.type = ['array'];
             targetSchema.items = resourceSchema;
           }
+          if (targetSchema.properties) {
+            targetSchema.properties = this.eject$schema(targetSchema.properties);
+          }
           this.jsf.resolve(targetSchema).then(fake => {
+            // console.log(fake, 'fake!!!!!!');
             let sample = _.cloneDeep(fake);
             // リソース上書き
             sample = this._extendResource(property, sample);
@@ -146,6 +150,23 @@ export default class GunubinMockServer {
         });
       });
     });
+  }
+
+  eject$schema(properties: any) {
+    // const {properties} = targetSchema;
+    // console.log(targetSchema);
+    const ret = {...properties};
+    Object.keys(properties).forEach(property => {
+      // console.log(property);
+      const prop = properties[property];
+      const {
+        $schema, // eslint-disable-line no-unused-vars
+        ...ejectedSchema
+      } = prop;
+
+      ret[property] = ejectedSchema;
+    });
+    return ret;
   }
 
   /**
