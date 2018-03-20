@@ -132,7 +132,6 @@ export default class GunubinMockServer {
             targetSchema.properties = this.eject$schema(targetSchema.properties);
           }
           this.jsf.resolve(targetSchema).then(fake => {
-            // console.log(fake, 'fake!!!!!!');
             let sample = _.cloneDeep(fake);
             // リソース上書き
             sample = this._extendResource(property, sample);
@@ -153,14 +152,13 @@ export default class GunubinMockServer {
   }
 
   eject$schema(properties: any) {
-    // const {properties} = targetSchema;
-    // console.log(targetSchema);
     const ret = {...properties};
     Object.keys(properties).forEach(property => {
-      // console.log(property);
       const prop = properties[property];
       const {
         $schema, // eslint-disable-line no-unused-vars
+        // targetSchemaに自分自身と同じオブジェクトを返すlinksがあると無限ループするのでlinksを削除
+        links, // eslint-disable-line no-unused-vars
         ...ejectedSchema
       } = prop;
 

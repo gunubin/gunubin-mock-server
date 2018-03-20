@@ -88,11 +88,15 @@
           "title": "詳細",
           "targetSchema": {
             "properties": {
+              "task": {
+                "$ref": "#/definitions/task"
+              },
               "todo": {
                 "$ref": "#/definitions/todo"
               }
             },
             "required": [
+              "task",
               "todo"
             ],
             "type": [

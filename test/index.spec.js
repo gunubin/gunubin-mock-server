@@ -92,6 +92,7 @@ test('targetSchema', async t => {
 
 test('targetSchema $ref', async t => {
   const res = await request(t.context.server.app).get('/job');
+  t.true(!!res.body.task);
   t.true(!!res.body.todo);
 });
 
