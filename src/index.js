@@ -131,7 +131,7 @@ export default class GunubinMockServer {
           if (targetSchema.properties) {
             targetSchema.properties = this.eject$schema(targetSchema.properties);
           }
-          const {$schema, ...schema} = targetSchema;
+          const {$schema, ...schema} = targetSchema;// eslint-disable-line no-unused-vars
           this.jsf.resolve(schema).then(fake => {
             let sample = _.cloneDeep(fake);
             // リソース上書き
@@ -180,12 +180,12 @@ export default class GunubinMockServer {
   _validate(schema: Object, sample: Object) {
     return _.some([schema, ...this.globalValidResponseSchemata], schema => {
       // validation時に$schemaを除く必要がある
-      const {$schema, ...validationSchema} = schema;
+      const {$schema, ...validationSchema} = schema;// eslint-disable-line no-unused-vars
       try {
         const ret = this._ajv.validate(validationSchema, sample);
         return ret;
       } catch (e) {
-        this.log(e)
+        this.log(e);
       }
     });
   }
