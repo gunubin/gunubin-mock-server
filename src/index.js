@@ -32,17 +32,17 @@ const STATUS_ERROR = 400;
  * GunubinMockServer
  */
 export default class GunubinMockServer {
-  _ajv: Ajv
-  _callback: () => void
-  _instance: any
-  _resources: {[key: string]: Stub} = {}
-  _routing: {[key: string]: Stub} = {}
-  _params: Params
-  app: any
-  globalValidResponseSchemata: Object[] = []
-  jsf: jsf
-  parser: $RefParser
-  schemata: Object = {}// パース済みのproperties以下を保持する
+  _ajv: Ajv;
+  _callback: () => void;
+  _instance: any;
+  _resources: { [key: string]: Stub } = {};
+  _routing: { [key: string]: Stub } = {};
+  _params: Params;
+  app: any;
+  globalValidResponseSchemata: Object[] = [];
+  jsf: jsf;
+  parser: $RefParser;
+  schemata: Object = {};// パース済みのproperties以下を保持する
 
   /**
    * constructor
@@ -131,7 +131,8 @@ export default class GunubinMockServer {
           if (targetSchema.properties) {
             targetSchema.properties = this.eject$schema(targetSchema.properties);
           }
-          this.jsf.resolve(targetSchema).then(fake => {
+          const {$schema, ...schema} = targetSchema;
+          this.jsf.resolve(schema).then(fake => {
             let sample = _.cloneDeep(fake);
             // リソース上書き
             sample = this._extendResource(property, sample);
@@ -178,7 +179,14 @@ export default class GunubinMockServer {
    */
   _validate(schema: Object, sample: Object) {
     return _.some([schema, ...this.globalValidResponseSchemata], schema => {
-      return this._ajv.validate(schema, sample);
+      // validation時に$schemaを除く必要がある
+      const {$schema, ...validationSchema} = schema;
+      try {
+        const ret = this._ajv.validate(validationSchema, sample);
+        return ret;
+      } catch (e) {
+        this.log(e)
+      }
     });
   }
 

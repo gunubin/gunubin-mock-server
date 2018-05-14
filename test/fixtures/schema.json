@@ -103,6 +103,29 @@
               "object"
             ]
           }
+        },
+        {
+          "description": "指定のtaskを有効化します。",
+          "href": "/task/{(%23%2Fdefinitions%2Ftask%2Fdefinitions%2Fidentity)}/activate",
+          "method": "POST",
+          "rel": "activate",
+          "schema": {
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/task/definitions/id"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "type": [
+              "object"
+            ]
+          },
+          "targetSchema": {
+            "$ref": "#/definitions/todo"
+          },
+          "title": "有効化"
         }
       ],
       "properties": {

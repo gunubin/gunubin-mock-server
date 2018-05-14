@@ -88,6 +88,9 @@ test('JSON Schema Validation Error', async t => {
 test('targetSchema', async t => {
   const res = await request(t.context.server.app).get('/task');
   t.true(!!res.body.content);
+
+  const res2 = await request(t.context.server.app).post('/task/1/activate');
+  t.true(!!res2.body.content);
 });
 
 test('targetSchema $ref', async t => {
